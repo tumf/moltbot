@@ -18,10 +18,20 @@ export function buildSlackThreadingToolContext(params: {
   const configuredReplyToMode = resolveSlackReplyToMode(account, params.context.ChatType);
   const effectiveReplyToMode = params.context.ThreadLabel ? "all" : configuredReplyToMode;
   const threadId = params.context.MessageThreadId ?? params.context.ReplyToId;
+  const to = params.context.To?.trim() || "";
+  const chatType = (params.context.ChatType ?? "").toLowerCase();
+
+  // Slack targets can be either channel:* (roomish) or user:* (DM). We keep a
+  // normalized identifier here so `resolveThreadTsFromContext()` can decide
+  // whether to auto-inject threadTs for tool calls.
+  const currentChannelId = to.startsWith("channel:")
+    ? to.slice("channel:".length)
+    : chatType === "direct" && to.startsWith("user:")
+      ? to.slice("user:".length)
+      : undefined;
+
   return {
-    currentChannelId: params.context.To?.startsWith("channel:")
-      ? params.context.To.slice("channel:".length)
-      : undefined,
+    currentChannelId,
     currentThreadTs: threadId != null ? String(threadId) : undefined,
     replyToMode: effectiveReplyToMode,
     hasRepliedRef: params.hasRepliedRef,

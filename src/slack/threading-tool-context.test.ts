@@ -108,4 +108,22 @@ describe("buildSlackThreadingToolContext", () => {
     });
     expect(result.replyToMode).toBe("off");
   });
+
+  it("sets currentChannelId for channel targets", () => {
+    const result = buildSlackThreadingToolContext({
+      cfg: emptyCfg,
+      accountId: null,
+      context: { ChatType: "channel", To: "channel:C123" },
+    });
+    expect(result.currentChannelId).toBe("C123");
+  });
+
+  it("sets currentChannelId for direct-message user targets", () => {
+    const result = buildSlackThreadingToolContext({
+      cfg: emptyCfg,
+      accountId: null,
+      context: { ChatType: "direct", To: "user:U123" },
+    });
+    expect(result.currentChannelId).toBe("U123");
+  });
 });

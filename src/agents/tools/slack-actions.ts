@@ -57,12 +57,12 @@ function resolveThreadTsFromContext(
   }
 
   const parsedTarget = parseSlackTarget(targetChannel, { defaultKind: "channel" });
-  if (!parsedTarget || parsedTarget.kind !== "channel") {
+  if (!parsedTarget || (parsedTarget.kind !== "channel" && parsedTarget.kind !== "user")) {
     return undefined;
   }
   const normalizedTarget = parsedTarget.id;
 
-  // Different channel - don't inject
+  // Different conversation target - don't inject
   if (normalizedTarget !== context.currentChannelId) {
     return undefined;
   }
